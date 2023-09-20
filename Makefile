@@ -169,6 +169,7 @@ test/k3s-wasmedge: dist/img.tar bin/k3s dist
 
 .PHONY: test/k3s-wasmer
 test/k3s-wasmer: dist/img.tar bin/k3s dist
+	sudo ls -R
 	sudo cp /var/lib/rancher/k3s/agent/etc/containerd/config.toml /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl && \
 	echo '[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.wasm]' | sudo tee -a /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl && \
 	echo '  runtime_type = "$(PWD)/dist/bin/containerd-shim-wasmer-v1"' | sudo tee -a /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl && \
