@@ -178,10 +178,11 @@ test/k3s-wasmer: dist/img.tar bin/k3s dist
 	sudo systemctl daemon-reload && \
 	sudo systemctl restart k3s-runwasi && \
 	timeout 60 bash -c -- 'while true; do sudo bin/k3s ctr version && break; sleep 1; done' && \
-	sudo bin/k3s ctr image import --all-platforms dist/img.tar && \
+	sudo bin/k3s ctr image import --all-platforms dist/img.tar
 	count=0; \
 	while [ $$count -lt 20 ]; do \
 	  if [ "$(sudo bin/k3s kubectl get nodes --no-headers | grep -v Ready | wc -l)" -eq 0 ]; then \
+	    sudo bin/k3s kubectl get nodes 
 	    break; \
 	  else \
 	    echo "Waiting for all nodes to be in Ready state..."; \
