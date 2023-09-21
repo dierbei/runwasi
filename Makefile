@@ -182,10 +182,9 @@ test/k3s-wasmer: dist/img.tar bin/k3s dist
 	count=0; \
 	while [ $$count -lt 20 ]; do \
 	  if [ "$(sudo bin/k3s kubectl get nodes --no-headers | grep -v Ready | wc -l)" -eq 0 ]; then \
-	    sudo bin/k3s kubectl get nodes \
 	    break; \
 	  else \
-	    echo "Waiting for all nodes to be in Ready state..."; \
+	    sudo bin/k3s kubectl get nodes; \
 	    sleep 3; \
 	    count=$$((count+1)); \
 	  fi \
