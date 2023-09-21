@@ -179,20 +179,13 @@ test/k3s-wasmer: dist/img.tar bin/k3s dist
 	sudo systemctl restart k3s-runwasi && \
 	timeout 60 bash -c -- 'while true; do sudo bin/k3s ctr version && break; sleep 1; done' && \
 	sudo bin/k3s ctr image import --all-platforms dist/img.tar
-	count=0; \
-	while [ $$count -lt 20 ]; do \
-	  if [ "$(sudo bin/k3s kubectl get nodes --no-headers | grep -v Ready | wc -l)" -eq 0 ]; then \
-	    break; \
-	  else \
-	    sudo bin/k3s kubectl get nodes; \
-	    sleep 3; \
-	    count=$$((count+1)); \
-	  fi \
-	done; \
-	if [ $$count -eq 20 ]; then \
-	  echo "Nodes not ready after waiting. Exiting."; \
-	  exit 1; \
-	fi
+	timeout 60 bash -c -- 'while true; do \
+		sudo bin/k3s kubectl get nodes; \
+		ALL_READY=$$(sudo bin/k3s kubectl get nodes -o=jsonpath="{range .items[*]}{.status.conditions[?(@.type=='Ready')].status}{'\n'}{end}" | grep -v "False" | wc -l); \
+		TOTAL_NODES=$$(sudo bin/k3s kubectl get nodes --no-headers | wc -l); \
+		if [ "$$ALL_READY" -eq "$$TOTAL_NODES" ]; then break; fi; \
+		sleep 5; \
+	done'
 	sudo bin/k3s kubectl apply -f test/k8s/deploy.yaml
 	sudo bin/k3s kubectl wait deployment wasi-demo --for condition=Available=True --timeout=120s && \
 	sudo bin/k3s kubectl get pods -o wide
