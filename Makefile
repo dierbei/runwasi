@@ -181,10 +181,10 @@ test/k3s-wasmer: dist/img.tar bin/k3s dist
 	sudo bin/k3s ctr image import --all-platforms dist/img.tar
 	timeout 60 bash -c -- 'while true; do \
 		sudo bin/k3s kubectl get nodes; \
-		ALL_READY=$$(sudo bin/k3s kubectl get nodes -o=jsonpath="{range .items[*]}{.status.conditions[?(@.type=='Ready')].status}{'\n'}{end}" | grep -v "False" | wc -l); \
+		ALL_READY=$$(sudo bin/k3s kubectl get nodes -o=jsonpath="{range .items[*]}{.status.conditions[?(@.type==\"Ready\")].status}{\"\n\"}{end}" | grep -v "False" | wc -l); \
 		TOTAL_NODES=$$(sudo bin/k3s kubectl get nodes --no-headers | wc -l); \
 		if [ "$$ALL_READY" -eq "$$TOTAL_NODES" ]; then break; fi; \
-		sleep 5; \
+		sleep 3; \
 	done'
 	sudo bin/k3s kubectl apply -f test/k8s/deploy.yaml
 	sudo bin/k3s kubectl wait deployment wasi-demo --for condition=Available=True --timeout=120s && \
